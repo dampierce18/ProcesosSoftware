@@ -1,0 +1,7 @@
+El sistema gestionará inventarios con funciones para controlar productos, registrar movimientos y generar reportes, todo con una interfaz amigable y una arquitectura modular que separa presentación y lógica.
+
+Se eligió JavaFX para una interfaz moderna y Spring Boot para la lógica y servicios, usando JDBC con JdbcTemplate para acceso eficiente a la base de datos, asegurando separación clara y facilidad de mantenimiento.
+
+Java es el lenguaje principal por su madurez y portabilidad. Se usa Spring Boot para backend, JavaFX para UI y JDBC con JdbcTemplate para acceso a datos.
+
+Java ofrece estabilidad, rendimiento y soporte multiplataforma. Spring Boot y JavaFX facilitan la creación de aplicaciones modulares y escalables, y JDBC permite un acceso directo y eficiente a la base de datos, haciendo esta combinación ideal para el proyecto.
