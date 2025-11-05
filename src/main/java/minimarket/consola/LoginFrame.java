@@ -1,4 +1,4 @@
-package sistema.minimarket.consola;
+package minimarket.consola;
 
 import javax.swing.*;
 import java.awt.*;

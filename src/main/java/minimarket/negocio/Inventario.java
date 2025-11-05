@@ -1,8 +1,8 @@
-package sistema.minimarket.negocio;
+package minimarket.negocio;
 
 import java.util.ArrayList;
 import java.util.List;
-import sistema.minimarket.modelo.Producto;
+import minimarket.modelo.Producto;
 
 public class Inventario {
     private List<Producto> productos;

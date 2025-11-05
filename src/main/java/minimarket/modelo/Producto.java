@@ -1,5 +1,4 @@
-package sistema.minimarket.modelo;
-
+package minimarket.modelo;
 
 public class Producto {
     private String nombre;
@@ -50,3 +49,4 @@ public class Producto {
                "Precio: S/ " + precio;
     }
 }
+

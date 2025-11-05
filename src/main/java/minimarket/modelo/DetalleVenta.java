@@ -1,4 +1,4 @@
-package sistema.minimarket.modelo;
+package minimarket.modelo;
 
 public class DetalleVenta {
     private Producto producto;

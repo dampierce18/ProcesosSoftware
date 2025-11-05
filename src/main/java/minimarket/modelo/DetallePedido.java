@@ -1,13 +1,10 @@
-package sistema.minimarket.modelo;
+package minimarket.modelo;
 
-
-public class Pedido {
+public class DetallePedido {
     private Producto producto;
     private int cantidad;
 
-    public Pedido() {}
-
-    public Pedido(Producto producto, int cantidad) {
+    public DetallePedido(Producto producto, int cantidad) {
         this.producto = producto;
         this.cantidad = cantidad;
     }
@@ -28,9 +25,12 @@ public class Pedido {
         this.cantidad = cantidad;
     }
 
+    public double getSubtotal() {
+        return producto.getPrecio() * cantidad;
+    }
+
     @Override
     public String toString() {
-        return "Pedido -> Producto: " + producto.getNombre() +
-               " | Cantidad solicitada: " + cantidad;
+        return producto.getNombre() + " | Cantidad: " + cantidad + " | Subtotal: S/ " + getSubtotal();
     }
 }

@@ -1,32 +1,32 @@
-package sistema.minimarket.modelo;
+package minimarket.modelo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
 
-public class Venta {
+public class Pedido {
     private String codigo;
-    private String fecha;
-    private List<DetalleVenta> detalles = new ArrayList<>();
+    private LocalDate fecha;
+    private List<DetallePedido> detalles = new ArrayList<>();
 
-    public Venta() {}
+    public Pedido() {}
 
-    public Venta(String codigo, String fecha) {
+    public Pedido(String codigo, LocalDate fecha) {
         this.codigo = codigo;
         this.fecha = fecha;
     }
 
-    public void agregarDetalle(DetalleVenta detalle) {
+    public void agregarDetalle(DetallePedido detalle) {
         detalles.add(detalle);
     }
 
-    public List<DetalleVenta> getDetalles() {
+    public List<DetallePedido> getDetalles() {
         return detalles;
     }
 
-    // Calculamos el total en tiempo real para evitar inconsistencias
     public double calcularMontoTotal() {
         double total = 0;
-        for (DetalleVenta d : detalles) {
+        for (DetallePedido d : detalles) {
             total += d.getSubtotal();
         }
         return total;
@@ -37,18 +37,20 @@ public class Venta {
     }
 
     public String getCodigo() { return codigo; }
-    public String getFecha() { return fecha; }
+    public LocalDate getFecha() { return fecha; }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Venta ").append(codigo)
+        sb.append("Pedido ").append(codigo)
           .append(" | Fecha: ").append(fecha)
           .append(" | Monto total: S/ ").append(getMontoTotal())
           .append("\nDetalles:\n");
-        for (DetalleVenta d : detalles) {
+        for (DetallePedido d : detalles) {
             sb.append("  - ").append(d.toString()).append("\n");
         }
         return sb.toString();
     }
+    
+
 }
