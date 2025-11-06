@@ -3,6 +3,9 @@ package minimarket.consola;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import minimarket.controlador.ControladorPrincipal;
+import minimarket.negocio.Inventario;
+import minimarket.registro.RegistroVentas;
 
 public class LoginFrame extends JFrame {
 
@@ -42,23 +45,30 @@ public class LoginFrame extends JFrame {
         });
     }
 
-    private void iniciarSesion() {
-        String usuario = txtUsuario.getText().trim();
-        String contrasena = new String(txtContrasena.getPassword());
+private void iniciarSesion() {
+    String usuario = txtUsuario.getText().trim();
+    String contrasena = new String(txtContrasena.getPassword());
 
-        if (usuario.equals("admin") && contrasena.equals("123")) {
-            JOptionPane.showMessageDialog(this, "Bienvenido, Administrador!");
-            dispose();
-            MainApp.main(new String[]{"admin"});
-        } else if (usuario.equals("empleado") && contrasena.equals("123")) {
-            JOptionPane.showMessageDialog(this, "Bienvenido, Empleado!");
-            dispose();
-            MainApp.main(new String[]{"empleado"});
-        } else {
-            JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
+    if (usuario.equals("admin") && contrasena.equals("123")) {
+        JOptionPane.showMessageDialog(this, "Bienvenido, Administrador!");
+        dispose();
+        Inventario inventario = new Inventario();
+        RegistroVentas registroVentas = new RegistroVentas();
+        ControladorPrincipal controlador = new ControladorPrincipal(inventario, registroVentas);
+        new ventanas.MenuPrincipal(controlador).setVisible(true);
     }
-
+    
+    if (usuario.equals("empleado") && contrasena.equals("123")) {
+        JOptionPane.showMessageDialog(this, "Bienvenido, Empleado!");
+        dispose();
+        Inventario inventario = new Inventario();
+        RegistroVentas registroVentas = new RegistroVentas();
+        ControladorPrincipal controlador = new ControladorPrincipal(inventario, registroVentas);
+        new ventanas.MenuPrincipal(controlador).setVisible(true);
+    }
+}
+	
+    
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
