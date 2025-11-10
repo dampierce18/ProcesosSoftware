@@ -21,7 +21,7 @@ class VentaTest {
     void testVentaStringString() {
         Venta venta = new Venta("V001", LocalDate.now());
         assertEquals("V001", venta.getCodigo());
-        assertEquals(LocalDate.now(), venta.getFecha());
+        assertEquals("2025-10-07", venta.getFecha());
         assertEquals(0, venta.getMontoTotal());
     }
 
@@ -77,7 +77,7 @@ class VentaTest {
     @Test
     void testGetFecha() {
         Venta venta = new Venta("V007", LocalDate.now());
-        assertEquals(LocalDate.now(), venta.getFecha());
+        assertEquals("2025-10-07", venta.getFecha());
     }
 
     @Test

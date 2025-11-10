@@ -1,0 +1,33 @@
+services:
+  # Base de datos MySQL
+  database:
+    image: mysql:8.0
+    container_name: minimarket-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: minimarket_db
+      MYSQL_USER: minimarket_user
+      MYSQL_PASSWORD: minimarket123
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # Aplicación Java
+  app:
+    build: .
+    container_name: minimarket-app
+    environment:
+      DB_HOST: database
+      DB_PORT: 3306
+      DB_NAME: minimarket_db
+      DB_USER: minimarket_user
+      DB_PASSWORD: minimarket123
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+
+volumes:
+  db_data:

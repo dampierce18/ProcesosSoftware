@@ -6,14 +6,19 @@ import minimarket.controlador.ControladorPrincipal;
 import minimarket.modelo.DetalleVenta;
 import minimarket.modelo.Producto;
 import minimarket.negocio.Inventario;
-import minimarket.registro.RegistroVentas;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.List;
 
 public class MenuPrincipal extends JFrame {
 
-    // Paleta de colores vino/guinda
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	// Paleta de colores vino/guinda
     private final Color COLOR_FONDO = new Color(245, 240, 245); // Fondo claro con tono lavanda suave
     private final Color COLOR_PRIMARIO = new Color(120, 20, 40);       // Vino oscuro principal
     private final Color COLOR_SECUNDARIO = new Color(150, 40, 60);     // Vino medio
@@ -27,6 +32,28 @@ public class MenuPrincipal extends JFrame {
     private JPanel panelIconos;
     private JTextArea listaTextos;
     private JLabel lblTotal;
+    
+    
+    
+    
+    // Ruta base para imágenes de productos
+    private final String RUTA_IMAGENES = "src/main/resources/";
+    private final ImageIcon IMAGEN_POR_DEFECTO = crearIconoPorDefecto();
+    
+    private ImageIcon crearIconoPorDefecto() {
+        // Crear una imagen por defecto si no se encuentra la del producto
+        BufferedImage imagen = new BufferedImage(80, 80, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = imagen.createGraphics();
+        g2d.setColor(COLOR_TERCIARIO);
+        g2d.fillRect(0, 0, 80, 80);
+        g2d.setColor(COLOR_TEXTO_CLARO);
+        g2d.setFont(new Font("Arial", Font.BOLD, 24));
+        g2d.drawString("📦", 25, 50);
+        g2d.dispose();
+        return new ImageIcon(imagen);
+    }
+    
+    
     
     public MenuPrincipal(ControladorPrincipal controlador) {
     	this.controlador = controlador;
@@ -82,127 +109,209 @@ public class MenuPrincipal extends JFrame {
     }
     
     private JButton crearBotonProducto(Producto producto) {
-        String textoBoton = String.format("<html><center>📦<br><b>%s</b><br>S/ %.2f</center></html>", 
-            producto.getNombre(), producto.getPrecio());
+        // Crear un panel personalizado para el botón
+        JPanel panelBoton = new JPanel(new BorderLayout());
+        panelBoton.setBackground(COLOR_TERCIARIO);
+        panelBoton.setBorder(BorderFactory.createLineBorder(COLOR_PRIMARIO, 1));
+        panelBoton.setPreferredSize(new Dimension(140, 200));
         
-        JButton boton = new JButton(textoBoton);
+        // Parte superior: IMAGEN del producto
+        JLabel lblImagen = new JLabel();
+        lblImagen.setHorizontalAlignment(SwingConstants.CENTER);
+        lblImagen.setBackground(COLOR_PANEL);
+        lblImagen.setOpaque(true);
+        lblImagen.setPreferredSize(new Dimension(140, 100));
+        
+        // Cargar imagen del producto
+        ImageIcon icono = cargarImagenProducto(producto);
+        lblImagen.setIcon(icono);
+        
+        // Parte central: información del producto
+        JLabel lblInfo = new JLabel(
+            String.format("<html><center><b>%s</b><br>S/ %.2f</center></html>", 
+                producto.getNombre(), producto.getPrecio()),
+            SwingConstants.CENTER
+        );
+        lblInfo.setForeground(COLOR_TEXTO_CLARO);
+        lblInfo.setFont(new Font("Arial", Font.BOLD, 11));
+        lblInfo.setBackground(COLOR_TERCIARIO);
+        lblInfo.setOpaque(true);
+        
+        // Parte inferior: controles de cantidad
+        JPanel panelControles = crearPanelControlesCantidad(producto);
+        
+        panelBoton.add(lblImagen, BorderLayout.NORTH);
+        panelBoton.add(lblInfo, BorderLayout.CENTER);
+        panelBoton.add(panelControles, BorderLayout.SOUTH);
+        
+        // Convertir el panel a botón
+        JButton boton = new JButton();
+        boton.setLayout(new BorderLayout());
+        boton.add(panelBoton);
         boton.setPreferredSize(new Dimension(140, 200));
         boton.setBackground(COLOR_TERCIARIO);
-        boton.setForeground(COLOR_TEXTO_CLARO);
-        boton.setFont(new Font("Arial", Font.BOLD, 12));
         boton.setBorder(BorderFactory.createLineBorder(COLOR_PRIMARIO, 1));
         
         if (producto.getStock() <= 0) {
             boton.setEnabled(false);
-            boton.setBackground(Color.GRAY);
-            boton.setText(String.format("<html><center>📦<br><b>%s</b><br>S/ %.2f<br><font color='red'>SIN STOCK</font></center></html>", 
+            lblInfo.setText(String.format("<html><center><b>%s</b><br>S/ %.2f<br><font color='red'>SIN STOCK</font></center></html>", 
                 producto.getNombre(), producto.getPrecio()));
+            panelControles.setVisible(false);
+            
+            // Aplicar efecto de gris a la imagen
+            lblImagen.setDisabledIcon(crearImagenGris(icono));
+            lblImagen.setEnabled(false);
         }
         
-        boton.addActionListener(e -> mostrarDialogoCantidad(producto));
         return boton;
     }
-    private void mostrarDialogoCantidad(Producto producto) {
-    	// Crear un panel personalizado para el diálogo
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBackground(COLOR_PANEL);
-        
-        // Título
-        JLabel lblTitulo = new JLabel("Seleccionar cantidad para:", SwingConstants.CENTER);
-        lblTitulo.setFont(new Font("Arial", Font.BOLD, 14));
-        lblTitulo.setForeground(COLOR_PRIMARIO);
-        panel.add(lblTitulo, BorderLayout.NORTH);
-        
-        // Nombre del producto
-        JLabel lblProducto = new JLabel(producto.getNombre(), SwingConstants.CENTER);
-        lblProducto.setFont(new Font("Arial", Font.BOLD, 16));
-        lblProducto.setForeground(COLOR_SECUNDARIO);
-        panel.add(lblProducto, BorderLayout.CENTER);
-        
-        // Información adicional del producto
-        JLabel lblInfo = new JLabel(
-            String.format("Precio: S/ %.2f | Stock disponible: %d", 
-                producto.getPrecio(), producto.getStock()), 
-            SwingConstants.CENTER
-        );
-        lblInfo.setFont(new Font("Arial", Font.PLAIN, 12));
-        lblInfo.setForeground(COLOR_PRIMARIO);
-        
-        // Panel para controles de cantidad
-        JPanel panelCantidad = new JPanel(new FlowLayout());
-        panelCantidad.setBackground(COLOR_PANEL);
-        
-        JLabel lblCantidad = new JLabel("Cantidad:");
-        lblCantidad.setForeground(COLOR_PRIMARIO);
-        
-        // Spinner con límite basado en el stock real
-        JSpinner spinnerCantidad = new JSpinner(
-            new SpinnerNumberModel(1, 1, producto.getStock(), 1)
-        );
-        JSpinner.DefaultEditor editor = (JSpinner.DefaultEditor) spinnerCantidad.getEditor();
-        editor.getTextField().setHorizontalAlignment(JTextField.CENTER);
-        spinnerCantidad.setFont(new Font("Arial", Font.BOLD, 14));
-        
-        panelCantidad.add(lblCantidad);
-        panelCantidad.add(spinnerCantidad);
-        
-        JPanel panelContenido = new JPanel(new BorderLayout());
-        panelContenido.setBackground(COLOR_PANEL);
-        panelContenido.add(lblInfo, BorderLayout.NORTH);
-        panelContenido.add(panelCantidad, BorderLayout.CENTER);
-        
-        panel.add(panelContenido, BorderLayout.SOUTH);
-        
-        int resultado = JOptionPane.showOptionDialog(
-                this,
-                panel,
-                "Seleccionar Cantidad",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                new Object[]{"Cancelar", "Agregar al Carrito"},
-                "Agregar al Carrito"
-            );
-        
-        if (resultado == 1) {
-            int cantidad = (int) spinnerCantidad.getValue();
-            if (controlador.validarStock(producto, cantidad)) {
-                controlador.agregarAlCarrito(producto, cantidad);
-                actualizarCarrito();
-                mostrarMensajeExito(producto, cantidad);
+    private ImageIcon cargarImagenProducto(Producto producto) {
+        try {
+            // Intentar cargar imagen específica del producto
+            String nombreArchivo = producto.getCodigo() + ".png"; // o .jpg
+            File archivoImagen = new File(RUTA_IMAGENES + nombreArchivo);
+            
+            if (archivoImagen.exists()) {
+                ImageIcon iconoOriginal = new ImageIcon(archivoImagen.getPath());
+                // Redimensionar imagen a 80x80 píxeles
+                Image imagenRedimensionada = iconoOriginal.getImage()
+                    .getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+                return new ImageIcon(imagenRedimensionada);
             } else {
-                JOptionPane.showMessageDialog(this, "Stock insuficiente", "Error", JOptionPane.ERROR_MESSAGE);
+                // Intentar con el nombre del producto
+                String nombreProductoArchivo = producto.getNombre().toLowerCase()
+                    .replace(" ", "_") + ".png";
+                archivoImagen = new File(RUTA_IMAGENES + nombreProductoArchivo);
+                
+                if (archivoImagen.exists()) {
+                    ImageIcon iconoOriginal = new ImageIcon(archivoImagen.getPath());
+                    Image imagenRedimensionada = iconoOriginal.getImage()
+                        .getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+                    return new ImageIcon(imagenRedimensionada);
+                }
             }
+        } catch (Exception e) {
+            System.err.println("Error al cargar imagen para " + producto.getNombre() + ": " + e.getMessage());
         }
+        
+        // Si no se encuentra imagen, usar icono por defecto
+        return IMAGEN_POR_DEFECTO;
+    }
+    private ImageIcon crearImagenGris(ImageIcon iconoOriginal) {
+        BufferedImage imagen = new BufferedImage(
+            iconoOriginal.getIconWidth(),
+            iconoOriginal.getIconHeight(),
+            BufferedImage.TYPE_INT_ARGB
+        );
+        
+        Graphics2D g2d = imagen.createGraphics();
+        // Aplicar filtro de grises
+        g2d.drawImage(iconoOriginal.getImage(), 0, 0, null);
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f));
+        g2d.setColor(Color.GRAY);
+        g2d.fillRect(0, 0, iconoOriginal.getIconWidth(), iconoOriginal.getIconHeight());
+        g2d.dispose();
+        
+        return new ImageIcon(imagen);
     }
     
-    private void mostrarMensajeExito(Producto producto, int cantidad) {
-        String mensaje = String.format(
-            "✅ Producto agregado:\n%s\nCantidad: %d\nPrecio unitario: S/ %.2f\nSubtotal: S/ %.2f",
-            producto.getNombre(), cantidad, producto.getPrecio(), cantidad * producto.getPrecio()
-        );
+    private JPanel crearPanelControlesCantidad(Producto producto) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(COLOR_TERCIARIO);
+        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         
-        JOptionPane.showMessageDialog(this, mensaje, "Producto Agregado", JOptionPane.INFORMATION_MESSAGE);
+        // Label de stock
+        JLabel lblStock = new JLabel("Stock: " + producto.getStock(), SwingConstants.CENTER);
+        lblStock.setForeground(COLOR_TEXTO_CLARO);
+        lblStock.setFont(new Font("Arial", Font.PLAIN, 9));
+        lblStock.setBackground(COLOR_SECUNDARIO);
+        lblStock.setOpaque(true);
+        
+        // Panel de botones + y -
+        JPanel panelBotones = new JPanel(new GridLayout(1, 2, 3, 0));
+        panelBotones.setBackground(COLOR_TERCIARIO);
+        
+        JButton btnMenos = new JButton("-");
+        JButton btnMas = new JButton("+");
+        
+        // Configurar botones (más pequeños para el nuevo diseño)
+        btnMenos.setBackground(COLOR_SECUNDARIO);
+        btnMenos.setForeground(COLOR_TEXTO_CLARO);
+        btnMenos.setFont(new Font("Arial", Font.BOLD, 10));
+        btnMenos.setBorder(BorderFactory.createLineBorder(COLOR_PRIMARIO, 1));
+        btnMenos.setPreferredSize(new Dimension(25, 20));
+        
+        btnMas.setBackground(COLOR_SECUNDARIO);
+        btnMas.setForeground(COLOR_TEXTO_CLARO);
+        btnMas.setFont(new Font("Arial", Font.BOLD, 10));
+        btnMas.setBorder(BorderFactory.createLineBorder(COLOR_PRIMARIO, 1));
+        btnMas.setPreferredSize(new Dimension(25, 20));
+        
+        // Label para mostrar cantidad seleccionada
+        int cantidadEnCarrito = controlador.getCantidadEnCarrito(producto);
+        JLabel lblCantidad = new JLabel(String.valueOf(cantidadEnCarrito), SwingConstants.CENTER);
+        lblCantidad.setForeground(COLOR_TEXTO_CLARO);
+        lblCantidad.setFont(new Font("Arial", Font.BOLD, 11));
+        lblCantidad.setBackground(COLOR_PRIMARIO);
+        lblCantidad.setOpaque(true);
+        
+        panelBotones.add(btnMenos);
+        panelBotones.add(btnMas);
+        
+        panel.add(lblStock, BorderLayout.NORTH);
+        panel.add(lblCantidad, BorderLayout.CENTER);
+        panel.add(panelBotones, BorderLayout.SOUTH);
+        
+        // Acciones de los botones
+        btnMas.addActionListener(e -> {
+            int cantidadActual = Integer.parseInt(lblCantidad.getText());
+            if (cantidadActual < producto.getStock()) {
+                controlador.agregarAlCarrito(producto, 1);
+                actualizarCarrito();
+            } else {
+                JOptionPane.showMessageDialog(this, "Stock insuficiente", "Error", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+        
+        btnMenos.addActionListener(e -> {
+            int cantidadActual = Integer.parseInt(lblCantidad.getText());
+            if (cantidadActual > 0) {
+            	lblCantidad.setText(String.valueOf(cantidadActual - 1));
+                controlador.removerDelCarrito(producto, 1);
+                actualizarCarrito();
+            }
+        });
+        
+        return panel;
     }
-	private void actualizarCarrito() {
+    
+    private void actualizarCarrito() {
         StringBuilder sb = new StringBuilder();
         List<DetalleVenta> carrito = controlador.getCarrito();
         
-        for (int i = 0; i < carrito.size(); i++) {
-            DetalleVenta detalle = carrito.get(i);
-            sb.append(String.format("%2d. %-25s %2d x S/%-6.2f %7.2f%n", 
-                i + 1, 
-                detalle.getProducto().getNombre(),
-                detalle.getCantidad(),
-                detalle.getProducto().getPrecio(),
-                detalle.getSubtotal()
-            ));
+        if (carrito.isEmpty()) {
+            sb.append("Carrito vacío\n");
+        } else {
+            for (int i = 0; i < carrito.size(); i++) {
+                DetalleVenta detalle = carrito.get(i);
+                sb.append(String.format("%2d. %-25s %2d x S/%-6.2f %7.2f%n", 
+                    i + 1, 
+                    detalle.getProducto().getNombre(),
+                    detalle.getCantidad(),
+                    detalle.getProducto().getPrecio(),
+                    detalle.getSubtotal()
+                ));
+            }
         }
         
         listaTextos.setText(sb.toString());
         lblTotal.setText(String.format("Total: S/ %.2f", controlador.calcularTotalCarrito()));
+        
+        cargarProductos();
     }
-	private void configurarPanelInferior() {
+    
+
+    private void configurarPanelInferior() {
     	// Obtener dimensiones de la pantalla
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int screenWidth = screenSize.width;
@@ -302,11 +411,11 @@ public class MenuPrincipal extends JFrame {
 	        JOptionPane.showMessageDialog(this, "El carrito está vacío", "Error", JOptionPane.ERROR_MESSAGE);
 	        return;
 	    }
-	    
+	    double total = controlador.calcularTotalCarrito();
 	    // Confirmar la venta
 	    int confirmacion = JOptionPane.showConfirmDialog(
 	        this,
-	        String.format("¿Confirmar venta?\nTotal: S/ %.2f", controlador.calcularTotalCarrito()),
+	        String.format("¿Confirmar venta?\nTotal: S/ %.2f", total),
 	        "Confirmar Venta",
 	        JOptionPane.YES_NO_OPTION
 	    );
@@ -314,7 +423,7 @@ public class MenuPrincipal extends JFrame {
 	    if (confirmacion == JOptionPane.YES_OPTION) {
 	        if (controlador.procesarVenta()) {
 	            JOptionPane.showMessageDialog(this, 
-	                String.format("✅ Venta procesada exitosamente\nTotal: S/ %.2f", controlador.calcularTotalCarrito()),
+	                String.format("✅ Venta procesada exitosamente\nTotal: S/ %.2f", total),
 	                "Venta Exitosa", 
 	                JOptionPane.INFORMATION_MESSAGE
 	            );
@@ -582,7 +691,10 @@ public class MenuPrincipal extends JFrame {
         
         return inventario;
     }
-    
+    public void actualizarVistaProductos() {
+        cargarProductos(); // Esto recargará los botones de productos
+    }
+    /*
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
@@ -609,5 +721,5 @@ public class MenuPrincipal extends JFrame {
                     "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
-    }
+    }*/
 }

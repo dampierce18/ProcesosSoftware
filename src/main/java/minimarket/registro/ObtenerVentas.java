@@ -1,4 +1,4 @@
-package minimarket.registro;
+	package minimarket.registro;
 
 public class ObtenerVentas {
 

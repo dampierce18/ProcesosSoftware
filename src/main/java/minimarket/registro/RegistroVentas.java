@@ -18,6 +18,11 @@ public class RegistroVentas {
     public List<Venta> obtenerVentas() {
         return new ArrayList<>(listaVentas); // Retorna copia para evitar modificaciones externas
     }
+    
+    public void cargarVentas(List<Venta> listaVentas) {
+    	this.listaVentas.clear();
+    	this.listaVentas.addAll(listaVentas);
+    }
 
     public void mostrarHistorial() {
         if (listaVentas.isEmpty()) {

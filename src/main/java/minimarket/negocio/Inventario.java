@@ -10,6 +10,11 @@ public class Inventario {
     public Inventario() {
         productos = new ArrayList<>();
     }
+    
+    public void cargarProductos(List<Producto> listaProductos) {
+    	this.productos.clear();
+    	this.productos.addAll(listaProductos);
+    }
 
     public void agregarProducto(Producto producto) {
         productos.add(producto);

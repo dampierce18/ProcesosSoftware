@@ -7,7 +7,6 @@ import java.time.LocalDate;
 public class Venta {
     private String codigo;
     private LocalDate fecha;
-    private double montoTotal;
     private List<DetalleVenta> detalles = new ArrayList<>();
 
     public Venta() {}
@@ -27,30 +26,14 @@ public class Venta {
 
     // Calculamos el total en tiempo real para evitar inconsistencias
     public double calcularMontoTotal() {
-        montoTotal = 0;
+        double total = 0;
         for (DetalleVenta d : detalles) {
-            montoTotal += d.getSubtotal();
+            total += d.getSubtotal();
         }
-        return montoTotal;
+        return total;
     }
 
-    public void setCodigo(String codigo) {
-		this.codigo = codigo;
-	}
-
-	public void setFecha(LocalDate fecha) {
-		this.fecha = fecha;
-	}
-
-	public void setMontoTotal(double montoTotal) {
-		this.montoTotal = montoTotal;
-	}
-
-	public void setDetalles(List<DetalleVenta> detalles) {
-		this.detalles = detalles;
-	}
-
-	public double getMontoTotal() {
+    public double getMontoTotal() {
         return calcularMontoTotal();
     }
 

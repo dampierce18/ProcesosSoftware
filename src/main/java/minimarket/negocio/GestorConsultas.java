@@ -32,7 +32,7 @@ public class GestorConsultas {
         return obtenerVentasEntre(inicio, fin).size();
     }
 
-    /* 🔹 Producto más vendido en rango
+    // 🔹 Producto más vendido en rango
     public Producto obtenerProductoMasVendido(LocalDate inicio, LocalDate fin) {
         Map<Producto, Integer> conteo = new HashMap<>();
 
@@ -46,30 +46,5 @@ public class GestorConsultas {
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .orElse(null);
-    }*/
-    
-    // 🔹 Productos más vendidos en rango - RETORNA List<Producto>
-    public List<Producto> obtenerProductoMasVendido(LocalDate inicio, LocalDate fin) {
-        Map<Producto, Integer> conteo = new HashMap<>();
-
-        // Contar cantidad vendida por producto
-        for (Venta v : obtenerVentasEntre(inicio, fin)) {
-            for (DetalleVenta d : v.getDetalles()) {
-                conteo.merge(d.getProducto(), d.getCantidad(), Integer::sum);
-            }
-        }
-
-        if (conteo.isEmpty()) {
-            return new ArrayList<>(); // Lista vacía si no hay ventas
-        }
-
-        // Encontrar la máxima cantidad vendida
-        int maxCantidad = Collections.max(conteo.values());
-        
-        // Retornar lista con todos los productos que tienen la máxima cantidad
-        return conteo.entrySet().stream()
-                .filter(entry -> entry.getValue() == maxCantidad)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
     }
 }
